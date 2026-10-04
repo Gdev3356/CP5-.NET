@@ -8,11 +8,15 @@
             <summary>
             Gerenciamento de mesas do restaurante.
             </summary>
+            <remarks>Marcado como neutro de versão, não foi o recurso escolhido para versionar,
+            mas precisa continuar visível/chamável depois que o versionamento foi ligado na API.</remarks>
         </member>
         <member name="M:Contra_Filé.Controllers.MesaController.#ctor(Contra_Filé.Application.Services.IMesaService)">
             <summary>
             Gerenciamento de mesas do restaurante.
             </summary>
+            <remarks>Marcado como neutro de versão, não foi o recurso escolhido para versionar,
+            mas precisa continuar visível/chamável depois que o versionamento foi ligado na API.</remarks>
         </member>
         <member name="M:Contra_Filé.Controllers.MesaController.GetAll">
             <summary>Lista todas as mesas.</summary>
@@ -40,44 +44,65 @@
             <summary>
             Gerenciamento de pedidos do restaurante.
             </summary>
+            <remarks>
+            Recurso escolhido para versionamento. v1 (deprecada) mantém a listagem antiga (array,
+            contrato do CP3); v2 (atual, default quando a requisição não informa versão) pagina a listagem
+            num envelope. GetById/Create/Delete não têm [MapToApiVersion], ficam disponíveis nas duas
+            versões, então o fluxo de escrita do CP3/CP4 continua funcionando com ou sem versão explícita.
+            </remarks>
         </member>
         <member name="M:Contra_Filé.Controllers.PedidoController.#ctor(Contra_Filé.Application.Services.IPedidoService,Microsoft.Extensions.Logging.ILogger{Contra_Filé.Controllers.PedidoController})">
             <summary>
             Gerenciamento de pedidos do restaurante.
             </summary>
+            <remarks>
+            Recurso escolhido para versionamento. v1 (deprecada) mantém a listagem antiga (array,
+            contrato do CP3); v2 (atual, default quando a requisição não informa versão) pagina a listagem
+            num envelope. GetById/Create/Delete não têm [MapToApiVersion], ficam disponíveis nas duas
+            versões, então o fluxo de escrita do CP3/CP4 continua funcionando com ou sem versão explícita.
+            </remarks>
         </member>
-        <member name="M:Contra_Filé.Controllers.PedidoController.GetAll">
-            <summary>Lista todos os pedidos.</summary>
+        <member name="M:Contra_Filé.Controllers.PedidoController.GetAllV1">
+            <summary>[v1 - DEPRECADA] Lista todos os pedidos (contrato antigo: array, sem paginação).</summary>
             <response code="200">Lista retornada com sucesso.</response>
         </member>
+        <member name="M:Contra_Filé.Controllers.PedidoController.GetAllV2(Contra_Filé.Application.DTO.PaginationQuery)">
+            <summary>[v2] Lista pedidos paginados (envelope com page/pageSize/totalItems/totalPages/items).</summary>
+            <param name="pagination">Parâmetros de paginação (page ≥ 1, pageSize entre 1 e 100).</param>
+            <response code="200">Página retornada com sucesso (pode vir com <c>items</c> vazio).</response>
+            <response code="400">page ou pageSize fora do intervalo permitido.</response>
+        </member>
         <member name="M:Contra_Filé.Controllers.PedidoController.GetById(System.Guid)">
-            <summary>Obtém um pedido pelo id.</summary>
+            <summary>Obtém um pedido pelo id. Disponível em v1 e v2.</summary>
             <param name="id">Identificador único do pedido.</param>
             <response code="200">Pedido encontrado.</response>
             <response code="404">Pedido não encontrado.</response>
         </member>
         <member name="M:Contra_Filé.Controllers.PedidoController.Create(Contra_Filé.Application.DTO.PedidoRequest)">
-            <summary>Abre um novo pedido para uma mesa.</summary>
+            <summary>Abre um novo pedido para uma mesa. Disponível em v1 e v2. Limitado a 10 requisições/minuto.</summary>
             <param name="request">Dados do pedido (mesa, usuário, pratos).</param>
             <response code="201">Pedido criado.</response>
-            <response code="400">Dados inválidos ou regra de negócio violada.</response>
+            <response code="400">Dados inválidos.</response>
             <response code="404">Mesa ou usuário referenciados não existem.</response>
+            <response code="429">Limite de requisições excedido — tente novamente depois do tempo indicado em Retry-After.</response>
         </member>
         <member name="M:Contra_Filé.Controllers.PedidoController.Delete(System.Guid)">
-            <summary>Remove um pedido pelo id.</summary>
+            <summary>Remove um pedido pelo id. Disponível em v1 e v2.</summary>
             <param name="id">Identificador único do pedido.</param>
             <response code="204">Removido com sucesso.</response>
             <response code="404">Pedido não encontrado.</response>
         </member>
         <member name="T:Contra_Filé.Controllers.PratoController">
             <summary>
-            Cardápio — gerenciamento de pratos disponíveis.
+            Cardápio, gerenciamento de pratos disponíveis.
             </summary>
+            <remarks>Marcado como neutro de versão (mesmo motivo do MesaController).</remarks>
         </member>
         <member name="M:Contra_Filé.Controllers.PratoController.#ctor(Contra_Filé.Application.Services.IPratoService)">
             <summary>
-            Cardápio — gerenciamento de pratos disponíveis.
+            Cardápio, gerenciamento de pratos disponíveis.
             </summary>
+            <remarks>Marcado como neutro de versão (mesmo motivo do MesaController).</remarks>
         </member>
         <member name="M:Contra_Filé.Controllers.PratoController.GetAll">
             <summary>Lista todos os pratos do cardápio.</summary>
@@ -120,12 +145,38 @@
             Registrar com AddExceptionHandler&lt;GlobalExceptionHandler&gt;() no Program.cs.
             </summary>
         </member>
+        <member name="T:Contra_Filé.API.HealthChecks.ContraFileSiteHealthCheck">
+            <summary>
+            Verifica a disponibilidade de uma URL externa (site do Contra Filé).
+            Usa um HttpClient nomeado registrado em AddContraFiléHealthChecks, com timeout curto para não
+            travar o /health caso o site externo esteja lento.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.API.HealthChecks.ContraFileSiteHealthCheck.#ctor(System.Net.Http.IHttpClientFactory)">
+            <summary>
+            Verifica a disponibilidade de uma URL externa (site do Contra Filé).
+            Usa um HttpClient nomeado registrado em AddContraFiléHealthChecks, com timeout curto para não
+            travar o /health caso o site externo esteja lento.
+            </summary>
+        </member>
         <member name="T:Contra_Filé.API.Seed.ContraFiléDataSeeder">
             <summary>
             Popula o banco com dados de exemplo, só em ambiente de Development e só se o banco
             estiver vazio (idempotente — roda de novo em todo restart, mas não duplica nada).
             Usa os construtores de verdade das entidades: todas as regras de negócio são respeitadas,
             inclusive o hash de senha do User (via HashHelper, chamado dentro do próprio construtor).
+            </summary>
+        </member>
+        <member name="T:Contra_Filé.Extensions.ConfigureSwaggerOptions">
+            <summary>
+            Gera um SwaggerDoc por versão descoberta pelo <see cref="T:Asp.Versioning.ApiExplorer.IApiVersionDescriptionProvider"/>
+            (um grupo por versão de API), no lugar do único "v1" fixo que existia até o CP4.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ConfigureSwaggerOptions.#ctor(Asp.Versioning.ApiExplorer.IApiVersionDescriptionProvider)">
+            <summary>
+            Gera um SwaggerDoc por versão descoberta pelo <see cref="T:Asp.Versioning.ApiExplorer.IApiVersionDescriptionProvider"/>
+            (um grupo por versão de API), no lugar do único "v1" fixo que existia até o CP4.
             </summary>
         </member>
         <member name="T:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions">
@@ -140,34 +191,40 @@
             <summary>Repositório genérico + serviços de aplicação.</summary>
         </member>
         <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>Swagger/OpenAPI com XML comments.</summary>
+            <summary>
+            Swagger/OpenAPI com XML comments.
+            Trocou o SwaggerDoc("v1", ...) único por um documento por versão de API, via
+            <see cref="T:Contra_Filé.Extensions.ConfigureSwaggerOptions"/> (precisa que AddContraFiléApiVersioning já tenha
+            sido chamado, pois depende do IApiVersionDescriptionProvider).
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléApiVersioning(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            CP5: versionamento de API (Asp.Versioning). Versão default 2.0 quando a requisição não
+            informa nenhuma; leitura por query string ("api-version") OU header ("X-Api-Version");
+            ReportApiVersions=true inclui os headers "api-supported-versions" e
+            "api-deprecated-versions" em toda resposta.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléRateLimiting(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            CP5: rate limit fixed window (10 requisições/minuto) aplicado via
+            [EnableRateLimiting("fixed")] só nas actions que o grupo decidir, NÃO é global, então
+            GET /health nunca é afetado sem precisar de DisableRateLimiting em lugar nenhum.
+            </summary>
         </member>
         <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléHealthChecks(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
             <summary>
-            Registra os health checks da API — "self" (processo no ar), banco (MySQL via
-            AddDbContextCheck sobre o mesmo DbContext do CP2) e um check externo recomendado
-            (disponibilidade do site da FIAP).
+            Tegistra os health checks da API, "self" (processo no ar), banco (MySQL via
+            AddDbContextCheck sobre o mesmo DbContext do CP2) e um check externo recomendado.
             </summary>
         </member>
         <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.MapContraFiléHealthChecks(Microsoft.AspNetCore.Builder.WebApplication)">
             <summary>
-            Mapeia GET /health com um response writer JSON (status geral, duração total e cada
+            CP4: mapeia GET /health com um response writer JSON (status geral, duração total e cada
             check nomeado com seu próprio status/duração; detalhe de exceção só em Development) e os
-            status HTTP corretos (Healthy/Degraded → 200, Unhealthy → 503).
-            </summary>
-        </member>
-        <member name="T:Contra_Filé.HealthChecks.ContraFileSiteHealthCheck">
-            <summary>
-            Verifica a disponibilidade de uma URL externa (site do Contra Filé).
-            Usa um HttpClient nomeado registrado em AddContraFiléHealthChecks, com timeout curto para não
-            travar o /health caso o site externo esteja lento.
-            </summary>
-        </member>
-        <member name="M:Contra_Filé.HealthChecks.ContraFileSiteHealthCheck.#ctor(System.Net.Http.IHttpClientFactory)">
-            <summary>
-            Verifica a disponibilidade de uma URL externa (site do Contra Filé).
-            Usa um HttpClient nomeado registrado em AddContraFiléHealthChecks, com timeout curto para não
-            travar o /health caso o site externo esteja lento.
+            status HTTP corretos (Healthy/Degraded para 200, Unhealthy para 503).
+            CP5: este endpoint NUNCA leva [EnableRateLimiting], fica de fora do teto de propósito.
             </summary>
         </member>
     </members>

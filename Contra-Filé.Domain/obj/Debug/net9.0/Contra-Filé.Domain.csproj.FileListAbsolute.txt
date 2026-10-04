@@ -37,3 +37,16 @@ C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP4\Contra-Filé.Domain\obj\Debug\n
 C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP4\Contra-Filé.Domain\obj\Debug\net9.0\refint\Contra-Filé.Domain.dll
 C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP4\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.pdb
 C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP4\Contra-Filé.Domain\obj\Debug\net9.0\ref\Contra-Filé.Domain.dll
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\bin\Debug\net9.0\Contra-Filé.Domain.deps.json
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\bin\Debug\net9.0\Contra-Filé.Domain.dll
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\bin\Debug\net9.0\Contra-Filé.Domain.pdb
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.csproj.AssemblyReference.cache
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.AssemblyInfoInputs.cache
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.AssemblyInfo.cs
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.csproj.CoreCompileInputs.cache
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.sourcelink.json
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.dll
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\refint\Contra-Filé.Domain.dll
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\Contra-Filé.Domain.pdb
+C:\Users\gkost\Documents\2TDSPG\Contra-Filé CP5\Contra-Filé.Domain\obj\Debug\net9.0\ref\Contra-Filé.Domain.dll

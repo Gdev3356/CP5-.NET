@@ -1,14 +1,17 @@
 ﻿namespace Contra_Filé.Controllers;
 
+using Asp.Versioning;
 using Contra_Filé.Application.DTO;
 using Contra_Filé.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 /// <summary>
-/// Cardápio — gerenciamento de pratos disponíveis.
+/// Cardápio, gerenciamento de pratos disponíveis.
 /// </summary>
+/// <remarks>Marcado como neutro de versão (mesmo motivo do MesaController).</remarks>
 [Route("api/[controller]")]
 [ApiController]
+[ApiVersionNeutral]
 [Produces("application/json")]
 public class PratoController(IPratoService pratoService) : ControllerBase
 {

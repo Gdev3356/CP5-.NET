@@ -6,9 +6,9 @@ namespace Contra_Filé.Application.Services;
 
 /// <summary>Orquestra os casos de uso de pedidos.</summary>
 /// <remarks>
-/// Agora valida se Mesa e Usuário referenciados existem antes de criar o pedido, necessário
-/// para o cenário de teste "dependência ausente" pedido no CP4. Lança <see cref="KeyNotFoundException"/>
-/// (já mapeada pelo GlobalExceptionHandler do CP3 para 404) quando a mesa ou o usuário não existem.
+/// Valida se Mesa e Usuário referenciados existem antes de criar o pedido (KeyNotFoundException,
+/// já mapeada pelo GlobalExceptionHandler para 404). GetPaged delega direto ao repositório, a
+/// v1 e a v2 do controller chamam o MESMO serviço, só a action HTTP muda o contrato de saída.
 /// </remarks>
 public class PedidoService : IPedidoService
 {
@@ -26,6 +26,10 @@ public class PedidoService : IPedidoService
     /// <inheritdoc/>
     public IReadOnlyList<PedidoResponse> GetAll() =>
         _repo.GetAll().Select(PedidoResponse.FromDomain).ToList();
+
+    /// <inheritdoc/>
+    public (IReadOnlyList<Pedido> Items, int Total) GetPaged(int page, int pageSize) =>
+        _repo.GetPaged(page, pageSize);
 
     /// <inheritdoc/>
     public PedidoResponse? GetById(Guid id)

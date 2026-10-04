@@ -13,8 +13,10 @@ public class Program
 
         builder.Services.AddContraFiléDbContext(builder.Configuration);
         builder.Services.AddContraFiléServices();
+        builder.Services.AddContraFiléApiVersioning();  // CP5 — precisa vir antes do Swagger
         builder.Services.AddContraFiléSwagger();
-        builder.Services.AddContraFiléHealthChecks();
+        builder.Services.AddContraFiléHealthChecks();   // CP4
+        builder.Services.AddContraFiléRateLimiting();   // CP5
 
         builder.Services.AddControllers();
 
@@ -26,12 +28,21 @@ public class Program
         // ExceptionHandler ANTES do roteamento
         app.UseExceptionHandler();
 
+        // Depois do ExceptionHandler, antes do MapControllers (regra do enunciado).
+        app.UseRateLimiter();
+
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Contra-Filé API v1");
+                // Um endpoint de Swagger por versão descoberta (v1.0 deprecada, v2.0 atual).
+                foreach (var description in app.DescribeApiVersions())
+                {
+                    options.SwaggerEndpoint(
+                        $"/swagger/{description.GroupName}/swagger.json",
+                        $"Contra-Filé API {description.GroupName}");
+                }
                 options.RoutePrefix = ""; // Swagger na raiz: http://localhost:5xxx/
             });
 
@@ -44,7 +55,7 @@ public class Program
         app.UseHttpsRedirection();
         app.UseAuthorization();
         app.MapControllers();
-        app.MapContraFiléHealthChecks(); // GET /health (não aparece no Swagger, não é um controller)
+        app.MapContraFiléHealthChecks(); // GET /health — fora do Swagger e fora do rate limit
 
         app.Run();
     }

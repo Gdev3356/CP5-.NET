@@ -1,4 +1,5 @@
-﻿using Contra_Filé.Application.DTO;
+﻿using Asp.Versioning;
+using Contra_Filé.Application.DTO;
 using Contra_Filé.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,8 +8,11 @@ namespace Contra_Filé.Controllers;
 /// <summary>
 /// Gerenciamento de mesas do restaurante.
 /// </summary>
+/// <remarks>Marcado como neutro de versão, não foi o recurso escolhido para versionar,
+/// mas precisa continuar visível/chamável depois que o versionamento foi ligado na API.</remarks>
 [Route("api/[controller]")]
 [ApiController]
+[ApiVersionNeutral]
 [Produces("application/json")]
 public class MesaController(IMesaService mesaService) : ControllerBase
 {

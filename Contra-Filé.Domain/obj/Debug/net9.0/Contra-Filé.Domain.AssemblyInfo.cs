@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Contra-Filé.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85741367273754732bbd751f1b572161d4205eaa")]
 [assembly: System.Reflection.AssemblyProductAttribute("Contra-Filé.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Contra-Filé.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

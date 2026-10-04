@@ -1,6 +1,5 @@
 ﻿using Contra_Filé.Application.Repositories;
 using Contra_Filé.Application.Services;
-using Contra_Filé.HealthChecks;
 using Contra_Filé.Infrastructure.Persistence;
 using Contra_Filé.Infrastructure.Persistence.Repositories;
 
@@ -8,17 +7,19 @@ namespace Contra_Filé.Extensions;
 
 using System.Reflection;
 using System.Text.Json;
+using Asp.Versioning;
 using Contra_Filé.API.Exceptions;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
+using Contra_Filé.API.HealthChecks;
 using Contra_Filé.Application.Repositories;
 using Contra_Filé.Application.Services;
 using Contra_Filé.Infrastructure.Persistence;
 using Contra_Filé.Infrastructure.Persistence.Repositories;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using System.Threading.RateLimiting;
 
 /// <summary>
 /// Extensões de DI para manter o Program.cs enxuto.
@@ -31,14 +32,11 @@ public static class ContraFiléServiceCollectionExtensions
         IConfiguration configuration)
     {
         var cs = configuration.GetConnectionString("ContraFiléMySQL")
-                 ?? throw new InvalidOperationException(
-                     "Connection string 'ContraFiléMySQL' não encontrada.");
-
-        // Informa a versão fixa (ex: MySQL 8.0) para evitar o AutoDetect na inicialização
-        var version = new MySqlServerVersion(new Version(8, 0, 30));
+            ?? throw new InvalidOperationException(
+                "Connection string 'ContraFiléMySQL' não encontrada.");
 
         services.AddDbContext<ContraFiléContext>(opt =>
-            opt.UseMySql(cs, version));
+            opt.UseMySql(cs, ServerVersion.AutoDetect(cs)));
 
         return services;
     }
@@ -57,24 +55,19 @@ public static class ContraFiléServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Swagger/OpenAPI com XML comments.</summary>
+    /// <summary>
+    /// Swagger/OpenAPI com XML comments.
+    /// Trocou o SwaggerDoc("v1", ...) único por um documento por versão de API, via
+    /// <see cref="ConfigureSwaggerOptions"/> (precisa que AddContraFiléApiVersioning já tenha
+    /// sido chamado, pois depende do IApiVersionDescriptionProvider).
+    /// </summary>
     public static IServiceCollection AddContraFiléSwagger(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
+        services.ConfigureOptions<ConfigureSwaggerOptions>();
+
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title       = "Contra-Filé API",
-                Version     = "v1",
-                Description = "API REST para gerenciamento de restaurante: mesas, pedidos e cardápio.",
-                Contact     = new OpenApiContact
-                {
-                    Name = "Equipe Contra-Filé",
-                    Email = "contato@contrafile.example.com"
-                }
-            });
-
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
             options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
@@ -84,9 +77,75 @@ public static class ContraFiléServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registra os health checks da API — "self" (processo no ar), banco (MySQL via
-    /// AddDbContextCheck sobre o mesmo DbContext do CP2) e um check externo recomendado
-    /// (disponibilidade do site da FIAP).
+    /// CP5: versionamento de API (Asp.Versioning). Versão default 2.0 quando a requisição não
+    /// informa nenhuma; leitura por query string ("api-version") OU header ("X-Api-Version");
+    /// ReportApiVersions=true inclui os headers "api-supported-versions" e
+    /// "api-deprecated-versions" em toda resposta.
+    /// </summary>
+    public static IServiceCollection AddContraFiléApiVersioning(this IServiceCollection services)
+    {
+        services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(2, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = ApiVersionReader.Combine(
+                    new QueryStringApiVersionReader("api-version"),
+                    new HeaderApiVersionReader("X-Api-Version"));
+            })
+            .AddMvc()
+            .AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVVV"; // v1.0, v2.0
+            });
+
+        return services;
+    }
+
+    /// <summary>
+    /// CP5: rate limit fixed window (10 requisições/minuto) aplicado via
+    /// [EnableRateLimiting("fixed")] só nas actions que o grupo decidir, NÃO é global, então
+    /// GET /health nunca é afetado sem precisar de DisableRateLimiting em lugar nenhum.
+    /// </summary>
+    public static IServiceCollection AddContraFiléRateLimiting(this IServiceCollection services)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            options.AddFixedWindowLimiter("fixed", limiter =>
+            {
+                limiter.Window = TimeSpan.FromMinutes(1);
+                limiter.PermitLimit = 10;
+                limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                limiter.QueueLimit = 0; // sem fila: estoura 429 na hora, não segura a requisição
+            });
+
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                context.HttpContext.Response.Headers.RetryAfter = "60";
+                context.HttpContext.Response.ContentType = "application/problem+json";
+
+                var problem = new
+                {
+                    type = "about:blank",
+                    title = "Muitas requisições",
+                    status = StatusCodes.Status429TooManyRequests,
+                    detail = "Limite de 10 requisições por minuto excedido para este endpoint. Tente novamente em instantes.",
+                    instance = context.HttpContext.Request.Path.Value
+                };
+
+                await context.HttpContext.Response.WriteAsync(
+                    JsonSerializer.Serialize(problem), cancellationToken);
+            };
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Tegistra os health checks da API, "self" (processo no ar), banco (MySQL via
+    /// AddDbContextCheck sobre o mesmo DbContext do CP2) e um check externo recomendado.
     /// </summary>
     public static IServiceCollection AddContraFiléHealthChecks(this IServiceCollection services)
     {
@@ -104,9 +163,10 @@ public static class ContraFiléServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Mapeia GET /health com um response writer JSON (status geral, duração total e cada
+    /// CP4: mapeia GET /health com um response writer JSON (status geral, duração total e cada
     /// check nomeado com seu próprio status/duração; detalhe de exceção só em Development) e os
-    /// status HTTP corretos (Healthy/Degraded → 200, Unhealthy → 503).
+    /// status HTTP corretos (Healthy/Degraded para 200, Unhealthy para 503).
+    /// CP5: este endpoint NUNCA leva [EnableRateLimiting], fica de fora do teto de propósito.
     /// </summary>
     public static WebApplication MapContraFiléHealthChecks(this WebApplication app)
     {

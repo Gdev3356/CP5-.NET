@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace Contra_Filé.HealthChecks;
+namespace Contra_Filé.API.HealthChecks;
 
 /// <summary>
 /// Verifica a disponibilidade de uma URL externa (site do Contra Filé).
