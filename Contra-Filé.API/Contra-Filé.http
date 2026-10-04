@@ -1,0 +1,6 @@
+@Contra_Filé_HostAddress = http://localhost:5074
+
+GET {{Contra_Filé_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

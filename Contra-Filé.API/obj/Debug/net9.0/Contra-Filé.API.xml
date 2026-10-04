@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Contra-Filé.API</name>
+    </assembly>
+    <members>
+        <member name="T:Contra_Filé.Controllers.MesaController">
+            <summary>
+            Gerenciamento de mesas do restaurante.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Controllers.MesaController.#ctor(Contra_Filé.Application.Services.IMesaService)">
+            <summary>
+            Gerenciamento de mesas do restaurante.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Controllers.MesaController.GetAll">
+            <summary>Lista todas as mesas.</summary>
+            <response code="200">Lista retornada com sucesso.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.MesaController.GetById(System.Guid)">
+            <summary>Obtém uma mesa pelo id.</summary>
+            <param name="id">Identificador único da mesa.</param>
+            <response code="200">Mesa encontrada.</response>
+            <response code="404">Mesa não encontrada.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.MesaController.Create(Contra_Filé.Application.DTO.MesaRequest)">
+            <summary>Cadastra uma nova mesa.</summary>
+            <param name="request">Número e status de ocupação da mesa.</param>
+            <response code="201">Mesa criada.</response>
+            <response code="400">Dados inválidos.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.MesaController.Delete(System.Guid)">
+            <summary>Remove uma mesa pelo id.</summary>
+            <param name="id">Identificador único da mesa.</param>
+            <response code="204">Removida com sucesso.</response>
+            <response code="404">Mesa não encontrada.</response>
+        </member>
+        <member name="T:Contra_Filé.Controllers.PedidoController">
+            <summary>
+            Gerenciamento de pedidos do restaurante.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PedidoController.#ctor(Contra_Filé.Application.Services.IPedidoService,Microsoft.Extensions.Logging.ILogger{Contra_Filé.Controllers.PedidoController})">
+            <summary>
+            Gerenciamento de pedidos do restaurante.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PedidoController.GetAll">
+            <summary>Lista todos os pedidos.</summary>
+            <response code="200">Lista retornada com sucesso.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PedidoController.GetById(System.Guid)">
+            <summary>Obtém um pedido pelo id.</summary>
+            <param name="id">Identificador único do pedido.</param>
+            <response code="200">Pedido encontrado.</response>
+            <response code="404">Pedido não encontrado.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PedidoController.Create(Contra_Filé.Application.DTO.PedidoRequest)">
+            <summary>Abre um novo pedido para uma mesa.</summary>
+            <param name="request">Dados do pedido (mesa, usuário, pratos).</param>
+            <response code="201">Pedido criado.</response>
+            <response code="400">Dados inválidos ou regra de negócio violada.</response>
+            <response code="404">Mesa ou usuário referenciados não existem.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PedidoController.Delete(System.Guid)">
+            <summary>Remove um pedido pelo id.</summary>
+            <param name="id">Identificador único do pedido.</param>
+            <response code="204">Removido com sucesso.</response>
+            <response code="404">Pedido não encontrado.</response>
+        </member>
+        <member name="T:Contra_Filé.Controllers.PratoController">
+            <summary>
+            Cardápio — gerenciamento de pratos disponíveis.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PratoController.#ctor(Contra_Filé.Application.Services.IPratoService)">
+            <summary>
+            Cardápio — gerenciamento de pratos disponíveis.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PratoController.GetAll">
+            <summary>Lista todos os pratos do cardápio.</summary>
+            <response code="200">Lista retornada com sucesso.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PratoController.GetById(System.Guid)">
+            <summary>Obtém um prato pelo id.</summary>
+            <param name="id">Identificador único do prato.</param>
+            <response code="200">Prato encontrado.</response>
+            <response code="404">Prato não encontrado.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PratoController.Create(Contra_Filé.Application.DTO.PratoRequest)">
+            <summary>
+            Adiciona um prato ao cardápio.
+            </summary>
+            <remarks>
+            O nome deve ter entre 3 e 20 caracteres.
+            O preço deve ser maior que zero.
+            O tempo de preparo deve estar entre 2 e 60 minutos.
+            </remarks>
+            <param name="request">Dados do prato.</param>
+            <response code="201">Prato criado.</response>
+            <response code="400">Dados inválidos ou regra de negócio violada.</response>
+        </member>
+        <member name="M:Contra_Filé.Controllers.PratoController.Delete(System.Guid)">
+            <summary>Remove um prato do cardápio.</summary>
+            <param name="id">Identificador único do prato.</param>
+            <response code="204">Removido com sucesso.</response>
+            <response code="404">Prato não encontrado.</response>
+        </member>
+        <member name="T:Contra_Filé.API.Exceptions.GlobalExceptionHandler">
+            <summary>
+            Intercepta todas as exceções não tratadas e retorna ProblemDetails (RFC 7807).
+            Registrar com AddExceptionHandler&lt;GlobalExceptionHandler&gt;() no Program.cs.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.API.Exceptions.GlobalExceptionHandler.#ctor(Microsoft.Extensions.Logging.ILogger{Contra_Filé.API.Exceptions.GlobalExceptionHandler},Microsoft.Extensions.Hosting.IHostEnvironment)">
+            <summary>
+            Intercepta todas as exceções não tratadas e retorna ProblemDetails (RFC 7807).
+            Registrar com AddExceptionHandler&lt;GlobalExceptionHandler&gt;() no Program.cs.
+            </summary>
+        </member>
+        <member name="T:Contra_Filé.API.Seed.ContraFiléDataSeeder">
+            <summary>
+            Popula o banco com dados de exemplo, só em ambiente de Development e só se o banco
+            estiver vazio (idempotente — roda de novo em todo restart, mas não duplica nada).
+            Usa os construtores de verdade das entidades: todas as regras de negócio são respeitadas,
+            inclusive o hash de senha do User (via HashHelper, chamado dentro do próprio construtor).
+            </summary>
+        </member>
+        <member name="T:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions">
+            <summary>
+            Extensões de DI para manter o Program.cs enxuto.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléDbContext(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>Registra o DbContext com MySQL.</summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Repositório genérico + serviços de aplicação.</summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>Swagger/OpenAPI com XML comments.</summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.AddContraFiléHealthChecks(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registra os health checks da API — "self" (processo no ar), banco (MySQL via
+            AddDbContextCheck sobre o mesmo DbContext do CP2) e um check externo recomendado
+            (disponibilidade do site da FIAP).
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.Extensions.ContraFiléServiceCollectionExtensions.MapContraFiléHealthChecks(Microsoft.AspNetCore.Builder.WebApplication)">
+            <summary>
+            Mapeia GET /health com um response writer JSON (status geral, duração total e cada
+            check nomeado com seu próprio status/duração; detalhe de exceção só em Development) e os
+            status HTTP corretos (Healthy/Degraded → 200, Unhealthy → 503).
+            </summary>
+        </member>
+        <member name="T:Contra_Filé.HealthChecks.ContraFileSiteHealthCheck">
+            <summary>
+            Verifica a disponibilidade de uma URL externa (site do Contra Filé).
+            Usa um HttpClient nomeado registrado em AddContraFiléHealthChecks, com timeout curto para não
+            travar o /health caso o site externo esteja lento.
+            </summary>
+        </member>
+        <member name="M:Contra_Filé.HealthChecks.ContraFileSiteHealthCheck.#ctor(System.Net.Http.IHttpClientFactory)">
+            <summary>
+            Verifica a disponibilidade de uma URL externa (site do Contra Filé).
+            Usa um HttpClient nomeado registrado em AddContraFiléHealthChecks, com timeout curto para não
+            travar o /health caso o site externo esteja lento.
+            </summary>
+        </member>
+    </members>
+</doc>
